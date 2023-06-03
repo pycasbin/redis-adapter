@@ -1,8 +1,6 @@
-from contextlib import contextmanager
-
 from casbin import persist
 import redis
-import re
+import json
 
 
 class CasbinRule:
@@ -51,7 +49,7 @@ def filter_field_to_lua_pattern(sec, ptype, field_index, *field_values):
         else:
             args.append(".*")
 
-    pattern = '^{{"PType":"{0}","V0":"{1}","V1":"{2}","V2":"{3}","V3":"{4}","V4":"{5}","V5":"{6}"}}$'.format(*args)
+    pattern = '^{{"ptype":"{0}","v0":"{1}","v1":"{2}","v2":"{3}","v3":"{4}","v4":"{5}","v5":"{6}"}}$'.format(*args)
     return pattern
 
 
@@ -71,7 +69,7 @@ class Adapter(persist.Adapter):
 
     def __init__(self, host, port, username=None, password=None, pool=None, key="casbin_rules"):
         self.key = key
-        self.client = redis.Redis(host=host, port=port, username=username, password=password, connection_pool=pool)
+        self.client = redis.Redis(host=host, port=port, username=username, password=password, connection_pool=pool, decode_responses=True)
 
     def drop_table(self):
         self.client.delete(self.key)
@@ -83,20 +81,18 @@ class Adapter(persist.Adapter):
             model (CasbinRule): CasbinRule object
         """
 
-        for line in self.client.hvals(self.key):
-            if "ptype" not in line:
-                continue
-            rule = CasbinRule(line)
-            for key, value in line.items():
-                setattr(rule, key, value)
-
+        length = self.client.llen(self.key)
+        for i in range(length):
+            line = self.client.lindex(self.key, i)
+            line = json.loads(line)
+            rule = CasbinRule(**line)
             persist.load_policy_line(str(rule), model)
 
     def _save_policy_line(self, ptype, rule):
         line = CasbinRule(ptype=ptype)
         for index, value in enumerate(rule):
             setattr(line, f"v{index}", value)
-        self.client.rpush(self.key, line.dict())
+        self.client.rpush(self.key, json.dumps(line.dict()))
 
     def _delete_policy_lines(self, ptype, rule):
         line = CasbinRule(ptype=ptype)
@@ -108,7 +104,7 @@ class Adapter(persist.Adapter):
         if len(line.dict()) == 0:
             return 0
         else:
-            self.client.lrem(self.key, 1, line.dict())
+            self.client.lrem(self.key, 0, json.dumps(line.dict()))
 
     def save_policy(self, model) -> bool:
         """Implement add Interface for casbin. Save the policy in mongodb
@@ -119,7 +115,6 @@ class Adapter(persist.Adapter):
         Returns:
             bool: True if succeed
         """
-        self.drop_table()
         for sec in ["p", "g"]:
             if sec not in model.model.keys():
                 continue
@@ -143,7 +138,7 @@ class Adapter(persist.Adapter):
         return True
 
     def remove_policy(self, sec, ptype, rule):
-        """Remove policy rules in redis(rules duplicate will only remove the first occurrence)
+        """Remove policy rules in redis(rules duplicate will all be removed)
 
         Args:
             sec (str): Section name, 'g' or 'p'
@@ -174,20 +169,23 @@ class Adapter(persist.Adapter):
         if not (1 <= field_index + len(field_values) <= 6):
             return False
 
-        script = """
-            local key = KEYS[1]
-            local pattern = ARGV[1]
-            
-            local r = redis.call('lrange', key, 0, -1)
-            for i=1, #r do 
-                if  string.find(r[i], pattern) then
-                    redis.call('lset', key, i-1, '__CASBIN_DELETED__')
-                end
-            end
-            redis.call('lrem', key, 0, '__CASBIN_DELETED__')
-            return 
-        """
-        cmd = self.client.register_script(script)
-        pattern = filter_field_to_lua_pattern(sec, ptype, field_index, *field_values)
-        cmd(keys=[self.key], args=[pattern])
+        length = self.client.llen(self.key)
+        for i in range(length):
+            line = json.loads(self.client.lindex(self.key, i))
+            if ptype != line.get("ptype"):
+                continue
+            j = 1
+            is_match = False
+            keys = list(line.keys())[field_index: field_index + len(field_values) + 1]
+            for field_value in field_values:
+                if field_value == line[keys[j]]:
+                    j += 1
+                    if j == len(field_values):
+                        is_match = True
+                else:
+                    break
+            if is_match:
+                self.client.lset(self.key, i, '__CASBIN_DELETED__')
+
+        self.client.lrem(self.key, 0, '__CASBIN_DELETED__')
         return True
