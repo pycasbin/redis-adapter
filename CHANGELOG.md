@@ -1,5 +1,12 @@
 # Semantic Versioning Changelog
 
+## [1.0.1](https://github.com/pycasbin/redis-adapter/compare/v1.0.0...v1.0.1) (2023-06-04)
+
+
+### Bug Fixes
+
+* add README badges ([#6](https://github.com/pycasbin/redis-adapter/issues/6)) ([ee894c2](https://github.com/pycasbin/redis-adapter/commit/ee894c249acdb943588b0ead8fc4b0aaea3ad4ee))
+
 # 1.0.0 (2023-06-04)
 
 
