@@ -1,2 +1,2 @@
 casbin>=0.8.1
-redis
+redis>=4.5.0
