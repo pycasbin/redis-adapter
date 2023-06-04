@@ -9,7 +9,7 @@ class CasbinRule:
     """
 
     def __init__(
-            self, ptype=None, v0=None, v1=None, v2=None, v3=None, v4=None, v5=None
+        self, ptype=None, v0=None, v1=None, v2=None, v3=None, v4=None, v5=None
     ):
         self.ptype = ptype
         self.v0 = v0
@@ -24,9 +24,9 @@ class CasbinRule:
 
         for value in dir(self):
             if (
-                    getattr(self, value) is not None
-                    and value.startswith("v")
-                    and value[1:].isnumeric()
+                getattr(self, value) is not None
+                and value.startswith("v")
+                and value[1:].isnumeric()
             ):
                 d[value] = getattr(self, value)
 
@@ -39,37 +39,21 @@ class CasbinRule:
         return '<CasbinRule :"{}">'.format(str(self))
 
 
-def filter_field_to_lua_pattern(sec, ptype, field_index, *field_values):
-    args = [ptype]
-
-    idx = field_index + len(field_values)
-    for i in range(6):  # v0-v5
-        if field_index <= i < idx and field_values[i - field_index] != "":
-            args.append(escape_lua_pattern(field_values[i - field_index]))
-        else:
-            args.append(".*")
-
-    pattern = '^{{"ptype":"{0}","v0":"{1}","v1":"{2}","v2":"{3}","v3":"{4}","v4":"{5}","v5":"{6}"}}$'.format(*args)
-    return pattern
-
-
-def escape_lua_pattern(s):
-    magic_chars = ['.', '%', '-', '+', '*', '?', '^', '$', '(', ')', '[', ']']
-
-    def escape_char(char):
-        if char in magic_chars:
-            return '%' + char
-        return char
-
-    return ''.join(escape_char(c) for c in s)
-
-
 class Adapter(persist.Adapter):
     """the interface for Casbin adapters."""
 
-    def __init__(self, host, port, username=None, password=None, pool=None, key="casbin_rules"):
+    def __init__(
+        self, host, port, username=None, password=None, pool=None, key="casbin_rules"
+    ):
         self.key = key
-        self.client = redis.Redis(host=host, port=port, username=username, password=password, connection_pool=pool, decode_responses=True)
+        self.client = redis.Redis(
+            host=host,
+            port=port,
+            username=username,
+            password=password,
+            connection_pool=pool,
+            decode_responses=True,
+        )
 
     def drop_table(self):
         self.client.delete(self.key)
@@ -176,7 +160,7 @@ class Adapter(persist.Adapter):
                 continue
             j = 1
             is_match = False
-            keys = list(line.keys())[field_index: field_index + len(field_values) + 1]
+            keys = list(line.keys())[field_index : field_index + len(field_values) + 1]
             for field_value in field_values:
                 if field_value == line[keys[j]]:
                     j += 1
@@ -185,7 +169,7 @@ class Adapter(persist.Adapter):
                 else:
                     break
             if is_match:
-                self.client.lset(self.key, i, '__CASBIN_DELETED__')
+                self.client.lset(self.key, i, "__CASBIN_DELETED__")
 
-        self.client.lrem(self.key, 0, '__CASBIN_DELETED__')
+        self.client.lrem(self.key, 0, "__CASBIN_DELETED__")
         return True
