@@ -1,5 +1,12 @@
 # Semantic Versioning Changelog
 
+## [1.0.2](https://github.com/pycasbin/redis-adapter/compare/v1.0.1...v1.0.2) (2023-06-11)
+
+
+### Bug Fixes
+
+* update supported python versions in setup.py ([a6d24c2](https://github.com/pycasbin/redis-adapter/commit/a6d24c2eade97761c12cc85724db06d189f29a63))
+
 ## [1.0.1](https://github.com/pycasbin/redis-adapter/compare/v1.0.0...v1.0.1) (2023-06-04)
 
 
