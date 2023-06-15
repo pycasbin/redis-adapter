@@ -33,7 +33,7 @@ setup(
     ],
     packages=find_packages(),
     install_requires=install_requires,
-    python_requires=">=3.3",
+    python_requires=">=3.8",
     license="Apache 2.0",
     classifiers=[
         "Programming Language :: Python :: 3.8",

@@ -1,4 +1,4 @@
-Redis Adapter for PyCasbin 
+Redis Adapter for PyCasbin
 ====
 
 [![GitHub Actions](https://github.com/pycasbin/redis-adapter/workflows/build/badge.svg?branch=master)](https://github.com/pycasbin/redis-adapter/actions)
@@ -9,7 +9,8 @@ Redis Adapter for PyCasbin
 [![Download](https://img.shields.io/pypi/dm/casbin_redis_adapter.svg)](https://pypi.org/project/casbin_redis_adapter/)
 [![License](https://img.shields.io/pypi/l/casbin_redis_adapter.svg)](https://pypi.org/project/casbin_redis_adapter/)
 
-Redis Adapter is the [redis](https://redis.io/) adapter for [PyCasbin](https://github.com/casbin/pycasbin). With this library, Casbin can load policy from redis or save policy to it.
+Redis Adapter is the [redis](https://redis.io/) adapter for [PyCasbin](https://github.com/casbin/pycasbin). With this
+library, Casbin can load policy from redis or save policy to it.
 
 ## Installation
 
@@ -38,6 +39,25 @@ else:
     # deny the request, show an error
     pass
 ```
+
+## Configuration
+
+`Adapter()` enable decode_responses by default and supports any Redis parameter configuration.
+
+To use casbin_redis_adapter, you must provide the following parameter configuration
+
+- `host`: address of the redis service
+- `port`: redis service port
+
+The following parameters are provided by default
+
+- `db`: redis database, default is `0`
+- `username`: redis username, default is `None`
+- `password`: redis password, default is `None`
+- `key`: casbin rule to store key, default is `casbin_rules`
+
+For more parameters, please follow [redis-py](https://redis.readthedocs.io/en/stable/connections.html#redis.Redis)
+
 ### Getting Help
 
 - [PyCasbin](https://github.com/casbin/pycasbin)
