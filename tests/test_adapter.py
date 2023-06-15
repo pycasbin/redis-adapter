@@ -16,7 +16,7 @@ def get_fixture(path):
 
 
 def get_enforcer():
-    adapter = Adapter("localhost", 6379)
+    adapter = Adapter("localhost", 6379, encoding="utf-8")
     e = casbin.Enforcer(get_fixture("rbac_model.conf"), adapter)
     model = e.get_model()
 
