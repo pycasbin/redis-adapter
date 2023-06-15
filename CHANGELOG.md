@@ -1,5 +1,12 @@
 # Semantic Versioning Changelog
 
+# [1.1.0](https://github.com/pycasbin/redis-adapter/compare/v1.0.2...v1.1.0) (2023-06-15)
+
+
+### Features
+
+* allow redis keyword configuration ([#8](https://github.com/pycasbin/redis-adapter/issues/8)) ([1e0fad5](https://github.com/pycasbin/redis-adapter/commit/1e0fad5ed09091ee903ac6b8066266bfc38cc792))
+
 ## [1.0.2](https://github.com/pycasbin/redis-adapter/compare/v1.0.1...v1.0.2) (2023-06-11)
 
 
