@@ -43,7 +43,14 @@ class Adapter(persist.Adapter):
     """the interface for Casbin adapters."""
 
     def __init__(
-        self, host, port, db=0, username=None, password=None, key="casbin_rules", **kwargs
+        self,
+        host,
+        port,
+        db=0,
+        username=None,
+        password=None,
+        key="casbin_rules",
+        **kwargs,
     ):
         self.key = key
         self.client = redis.Redis(
@@ -53,7 +60,7 @@ class Adapter(persist.Adapter):
             username=username,
             password=password,
             decode_responses=True,
-            **kwargs
+            **kwargs,
         )
 
     def drop_table(self):
