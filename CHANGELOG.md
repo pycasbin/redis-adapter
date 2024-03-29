@@ -1,5 +1,12 @@
 # Semantic Versioning Changelog
 
+# [1.2.0](https://github.com/pycasbin/redis-adapter/compare/v1.1.0...v1.2.0) (2024-03-29)
+
+
+### Features
+
+* upgrade CI Node.js version to 20 ([9e9939c](https://github.com/pycasbin/redis-adapter/commit/9e9939c98d907b586b30e31c2cc7f44c21d38930))
+
 # [1.1.0](https://github.com/pycasbin/redis-adapter/compare/v1.0.2...v1.1.0) (2023-06-15)
 
 
